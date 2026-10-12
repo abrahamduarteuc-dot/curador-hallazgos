@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f3b4f">
+<title>Biblioteca de hallazgos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef2f6; --card:#fff; --ink:#0f1f2e; --muted:#5b6b7b; --line:#e3e9ef;
+  --teal:#0e6b8a; --teal-d:#0f3b4f; --gold:#dba11b; --green:#3aa56a; --red:#ef6a63; --gray:#9aa7b4; --purple:#7b61c9;
+  --r:22px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{font-family:'Figtree',system-ui,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:120px}
+button,input,select,textarea{font:inherit;color:inherit}
+.banner{background:var(--teal-d);color:#dbe9f0;font-size:14px;padding:12px 18px;letter-spacing:.2px}
+.banner b{color:#fff;letter-spacing:1.5px;margin-right:6px}
+.top{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);padding:10px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.icon{width:46px;height:46px;border-radius:14px;border:0;background:#eef2f6;display:grid;place-items:center;cursor:pointer}
+.top h1{font-size:18px;font-weight:700;margin:0}
+main{max-width:1100px;margin:0 auto;padding:16px}
+
+/* Portada */
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#0f3b4f 0%,#0e6b8a 100%);color:#fff;border-radius:28px;padding:22px 20px 60px}
+.hero::before,.hero::after{content:'';position:absolute;border-radius:50%;background:rgba(255,255,255,.07)}
+.hero::before{width:230px;height:230px;right:-70px;top:-90px}
+.hero::after{width:150px;height:150px;right:80px;bottom:-80px}
+.hero small{display:block;font-size:12px;letter-spacing:1.8px;font-weight:700;opacity:.75}
+.hero h2{font-size:30px;line-height:1.1;margin:6px 0 4px;font-weight:800;letter-spacing:-.4px}
+.hero p{margin:0;opacity:.88;font-size:15px}
+.flow{display:flex;height:10px;border-radius:9px;overflow:hidden;background:rgba(255,255,255,.18);margin-top:16px;position:relative}
+.flow span{display:block;height:100%;transition:width .4s}
+
+/* Cuadros-filtro */
+.tiles{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:-40px 0 14px}
+@media(min-width:760px){.tiles{grid-template-columns:repeat(6,1fr)}}
+.tile{position:relative;background:var(--card);border:2px solid transparent;border-top:6px solid var(--c);border-radius:20px;padding:9px 10px 12px;text-align:left;cursor:pointer;box-shadow:0 2px 8px rgba(15,31,46,.09);transition:transform .15s,box-shadow .15s,background .15s}
+.tile:active{transform:scale(.97)}
+.tile>span{display:block;font-size:12.5px;font-weight:700;color:var(--muted);white-space:nowrap}
+.tile>b{display:block;font-size:34px;line-height:1.05;font-weight:800;margin:4px 0 7px}
+.tile .bar{display:block;height:5px;border-radius:9px;background:var(--line);overflow:hidden}
+.tile .bar u{display:block;height:100%;width:var(--p);background:var(--c);text-decoration:none;border-radius:9px;transition:width .4s}
+.tile.on{background:linear-gradient(var(--t),var(--t)),#fff;border-color:var(--c);transform:translateY(-3px);box-shadow:0 10px 20px rgba(15,31,46,.15)}
+.tile.on::after{content:'✓';position:absolute;right:7px;top:8px;width:19px;height:19px;border-radius:50%;background:var(--c);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center}
+
+/* Panel que se abre */
+.drawer{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease,margin .3s ease}
+.drawer.open{grid-template-rows:1fr;margin-bottom:16px}
+.drawer>div{overflow:hidden;min-height:0}
+.dbox{background:var(--card);border-radius:var(--r);border-left:6px solid var(--c);padding:16px;box-shadow:0 2px 8px rgba(15,31,46,.07)}
+.dh{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.dh h3{margin:0;font-size:19px;font-weight:800}
+.dh p{margin:3px 0 0;font-size:14px;color:var(--muted);line-height:1.4}
+.hide{flex:none;border:0;background:var(--bg);border-radius:999px;padding:8px 13px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer}
+.mrows{display:flex;flex-direction:column;gap:2px;margin-top:10px}
+.mrow{display:flex;align-items:center;gap:12px;width:100%;border:0;background:transparent;border-radius:14px;padding:9px 6px;text-align:left;cursor:pointer}
+.mrow:active{background:var(--bg)}
+.em{flex:none;width:40px;height:40px;border-radius:13px;background:rgba(14,107,138,.1);display:grid;place-items:center;font-size:20px}
+.mt{flex:1;min-width:0}
+.mt b{display:block;font-size:16px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mt small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--muted);font-size:13.5px;line-height:1.35}
+.go{color:var(--gray);font-size:22px}
+.more{margin:8px 6px 0;font-size:13px;color:var(--muted)}
+.none{margin:12px 0 2px;color:var(--muted);font-size:15px}
+
+/* Búsqueda */
+.tools{background:var(--card);border-radius:var(--r);padding:12px;box-shadow:0 1px 3px rgba(15,31,46,.06);margin-bottom:14px}
+.search{display:flex;align-items:center;gap:10px;background:var(--bg);border-radius:14px;padding:0 14px}
+.search input{flex:1;border:0;background:transparent;height:50px;font-size:17px;outline:none;min-width:0}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 0 2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font-weight:600;font-size:14.5px;cursor:pointer;color:var(--muted);white-space:nowrap}
+.chip.on{background:var(--teal-d);border-color:var(--teal-d);color:#fff}
+.row{display:flex;gap:10px;margin-top:10px}
+.row select{flex:1;min-width:0;height:44px;border-radius:14px;border:1.5px solid var(--line);background:#fff;padding:0 12px;font-size:15px;font-weight:500}
+.countrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 4px 12px;color:var(--muted);font-size:14px;font-weight:500;flex-wrap:wrap}
+.countrow .acts{display:flex;gap:6px}
+.lnk{border:0;background:transparent;color:var(--teal);font-weight:700;font-size:14px;cursor:pointer;padding:4px 6px}
+
+/* Cuadrícula */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:640px){.grid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}}
+.card{background:var(--card);border-radius:var(--r);border:0;border-top:6px solid var(--c);padding:12px 13px 13px;box-shadow:0 1px 3px rgba(15,31,46,.06);cursor:pointer;display:flex;flex-direction:column;gap:6px;text-align:left;transition:transform .12s;animation:pop .35s ease both;animation-delay:calc(var(--i,0) * 40ms)}
+.card:active{transform:scale(.97)}
+.card.off{opacity:.62}
+@keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.ctop{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.card .em{width:36px;height:36px;font-size:18px;border-radius:12px}
+.pill{font-size:11.5px;font-weight:700;padding:4px 9px;border-radius:999px;background:var(--c);color:#fff;white-space:nowrap}
+.cat{font-size:11.5px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.6px}
+.card h3{font-size:17.5px;line-height:1.2;margin:0;font-weight:800;overflow-wrap:anywhere}
+.res{font-size:13.5px;color:var(--muted);line-height:1.4;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex:1}
+.foot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 8px;margin-top:4px}
+.dots{font-size:11px;letter-spacing:1px;color:var(--teal)}
+.risk{font-size:12px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:5px}
+.risk i{width:9px;height:9px;border-radius:50%;background:var(--c);display:inline-block}
+.tag{font-size:11.5px;font-weight:700;color:var(--purple)}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:44px 10px;background:var(--card);border-radius:var(--r)}
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom));background:var(--teal);color:#fff;border:0;border-radius:999px;padding:17px 28px;font-weight:700;font-size:17px;box-shadow:0 8px 24px rgba(14,107,138,.4);cursor:pointer;z-index:6;white-space:nowrap}
+
+/* Hojas */
+.sheet{position:fixed;inset:0;background:rgba(15,31,46,.55);display:none;align-items:flex-end;justify-content:center;z-index:20}
+.sheet.open{display:flex}
+.panel{background:#fff;width:100%;max-width:660px;max-height:93vh;overflow:auto;border-radius:28px 28px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom));animation:up .22s ease-out}
+@media(min-width:700px){.sheet{align-items:center}.panel{border-radius:28px}}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.ph{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
+.ph .who{display:flex;gap:12px;align-items:center;min-width:0}
+.ph .em{width:50px;height:50px;font-size:25px;border-radius:16px}
+.ph h3{font-size:23px;line-height:1.15;margin:2px 0 0;font-weight:800;overflow-wrap:anywhere}
+.x{flex:none;width:42px;height:42px;border-radius:50%;border:0;background:var(--bg);font-size:20px;cursor:pointer}
+.badges{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.src{font-size:13px;font-weight:600;border-radius:12px;padding:8px 12px;margin-bottom:14px;line-height:1.35}
+.src.ok{background:#e4f4ea;color:#1f6e41}.src.mid{background:#e3eef6;color:#1d5a7a}.src.warn{background:#fbf0d4;color:#8a6208}
+.sec{margin:0 0 14px}
+.sec h4{margin:0 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:700}
+.sec p{margin:0;font-size:16px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* Instalación y prompt */
+.inst,.pbox{border-radius:20px;padding:16px;margin:0 0 16px}
+.inst{background:#f4f1fb;border:1.5px solid #e1d9f5}
+.pbox{background:#0f1f2e;color:#e8eef4}
+.inst h4,.pbox h4{margin:0 0 10px;font-size:15px;font-weight:800}
+.pbox h4{color:#fff}
+.step{display:flex;gap:11px;margin-bottom:12px}
+.step .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--purple);color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center;margin-top:1px}
+.step .sb{flex:1;min-width:0}
+.step p{margin:0 0 6px;font-size:15px;line-height:1.45;overflow-wrap:anywhere}
+.cmd{display:flex;align-items:flex-start;gap:8px;background:#0f1f2e;border-radius:12px;padding:10px 8px 10px 12px;margin-top:6px}
+.cmd code{flex:1;min-width:0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.5;color:#cdeaf5;white-space:pre-wrap;overflow-wrap:anywhere}
+.cp{flex:none;border:0;border-radius:9px;background:#27465a;color:#fff;font-weight:700;font-size:12.5px;padding:8px 11px;cursor:pointer}
+.warnline{margin:4px 0 0;font-size:13px;color:#6b4fb3;line-height:1.4;font-weight:600}
+.pbox pre{margin:0 0 12px;white-space:pre-wrap;overflow-wrap:anywhere;font-family:inherit;font-size:14.5px;line-height:1.5;color:#e8eef4}
+.pbox .cp{background:var(--teal);padding:11px 16px;font-size:14px;border-radius:12px}
+.link{display:inline-block;margin:0 0 4px;color:var(--teal);font-weight:700;text-decoration:none;font-size:15px;overflow-wrap:anywhere}
+
+.lbl{display:block;font-size:13px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:700;margin:16px 0 8px}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:10px 14px;font-weight:700;font-size:15px;cursor:pointer}
+.seg button.on{background:var(--c,var(--teal-d));border-color:var(--c,var(--teal-d));color:#fff}
+.seg.nums button{width:48px;padding:10px 0}
+textarea,.inp{width:100%;border:1.5px solid var(--line);border-radius:14px;padding:13px;font-size:16px;background:#fff;outline:none}
+textarea{min-height:90px;resize:vertical}
+textarea:focus,.inp:focus{border-color:var(--teal)}
+.btn{width:100%;border:0;border-radius:16px;background:var(--teal);color:#fff;font-weight:700;font-size:17px;padding:16px;cursor:pointer;margin-top:18px}
+.btn[disabled]{opacity:.55}
+.btn.ghost{background:#fff;color:#c0392b;border:1.5px solid #f2c9c5;margin-top:10px}
+.btn.alt{background:var(--bg);color:var(--ink);margin-top:10px}
+.drop{display:flex;align-items:center;justify-content:center;gap:10px;border:2px dashed #b8c8d6;border-radius:18px;min-height:90px;cursor:pointer;color:var(--muted);font-weight:600;text-align:center;padding:12px}
+.thumbs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.th{position:relative}
+.th img{height:96px;border-radius:12px;display:block}
+.th .rm{position:absolute;right:-6px;top:-6px;width:26px;height:26px;border-radius:50%;border:0;background:var(--ink);color:#fff;font-size:13px;cursor:pointer}
+.chk{display:flex;gap:10px;align-items:center;margin-top:16px;font-weight:600;font-size:15px}
+.chk input{width:22px;height:22px;accent-color:var(--purple)}
+.status{margin-top:14px;font-size:15px;color:var(--teal);font-weight:600;text-align:center;min-height:22px}
+.status.err{color:#c0392b}
+.help{font-size:14px;color:var(--muted);line-height:1.5;margin:10px 0 0}
+.toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:var(--teal-d);color:#fff;padding:12px 18px;border-radius:14px;font-weight:600;font-size:15px;z-index:40;max-width:90vw;display:none}
+@media(prefers-reduced-motion:reduce){.card{animation:none}.drawer,.tile,.flow span{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="banner" id="banner"></div>
+<header class="top">
+  <button class="icon" id="btnMenu" aria-label="Ajustes">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <h1>Hallazgos</h1>
+</header>
+
+<main>
+  <section class="hero">
+    <small>TU BIBLIOTECA</small>
+    <h2 id="heroTitle">Hallazgos</h2>
+    <p id="heroSub"></p>
+    <div class="flow" id="flow" aria-hidden="true"></div>
+  </section>
+
+  <section class="tiles" id="tiles"></section>
+
+  <section class="drawer" id="drawer"><div><div class="dbox" id="dbox"></div></div></section>
+
+  <section class="tools">
+    <div class="search">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5b6b7b" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input id="q" type="search" placeholder="Buscar hallazgos…" autocomplete="off">
+    </div>
+    <div class="chips" id="chipsCat"></div>
+    <div class="row">
+      <select id="selOrden" aria-label="Orden">
+        <option value="recientes">Más recientes</option>
+        <option value="utilidad">Mayor utilidad</option>
+        <option value="nombre">Nombre A–Z</option>
+      </select>
+    </div>
+  </section>
+
+  <div class="countrow"><span id="count"></span><span class="acts"><button class="lnk" id="btnClear" hidden>Limpiar filtros</button><button class="lnk" id="btnDesc"></button></span></div>
+  <section class="grid" id="grid"></section>
+</main>
+
+<button class="fab" id="btnAdd">＋ Analizar hallazgo</button>
+
+<div class="sheet" id="sheetDetalle"><div class="panel" id="panelDetalle"></div></div>
+
+<div class="sheet" id="sheetAdd">
+  <div class="panel">
+    <div class="ph"><h3>Analizar hallazgo</h3><button class="x" data-close aria-label="Cerrar">✕</button></div>
+    <label class="lbl" style="margin-top:0">Capturas de pantalla (hasta 3)</label>
+    <div class="thumbs" id="thumbs"></div>
+    <label class="drop" id="drop">
+      <input type="file" id="file" accept="image/*" multiple hidden>
+      <span id="dropTxt">📷 Toca para elegir capturas</span>
+    </label>
+    <label class="lbl">Enlace (opcional)</label>
+    <input class="inp" id="inUrl" type="url" inputmode="url" placeholder="https://github.com/…">
+    <label class="lbl">Nombre o nota (opcional)</label>
+    <input class="inp" id="inTexto" type="text" placeholder="Ej: OmniRoute">
+    <label class="chk"><input type="checkbox" id="inInst" checked> 🧰 Incluir protocolo de instalación y prompt (si aplica)</label>
+    <p class="help">Con capturas, enlace o solo el nombre basta. Si encuentro el repositorio en GitHub, leo su descripción para que la ficha sea más confiable. Varias capturas del mismo reel cuentan como un solo hallazgo.</p>
+    <button class="btn" id="btnGo">Analizar con Haiku</button>
+    <div class="status" id="status"></div>
+  </div>
+</div>
+
+<div class="sheet" id="sheetCfg">
+  <div class="panel">
+    <div class="ph"><h3>Ajustes</h3><button class="x" data-close aria-label="Cerrar">✕</button></div>
+    <label class="lbl" style="margin-top:0">Dirección de tu intermediario</label>
+    <input class="inp" id="cfgUrl" type="url" inputmode="url" placeholder="https://script.google.com/macros/s/…/exec">
+    <label class="lbl">Clave de la app</label>
+    <input class="inp" id="cfgClave" type="password" placeholder="La que definiste en el script">
+    <p class="help">Estos datos se guardan solo en este teléfono. Sin ellos la app funciona en modo demo con las fichas iniciales.</p>
+    <button class="btn" id="btnSaveCfg">Guardar y conectar</button>
+    <button class="btn alt" id="btnDemo">Volver al modo demo</button>
+    <div class="status" id="cfgStatus"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+const ESTADOS = ['Nueva','Guardada','En prueba','Descartada'];
+const CATS = ['Agentes','Ahorro de tokens','Conectores','Investigación web','Automatización','Visual / Interfaz','Datos y Sheets','Voz / Audio','Otro'];
+const EMO = {'Agentes':'🤖','Ahorro de tokens':'🪙','Conectores':'🔌','Investigación web':'🔎','Automatización':'⚙️','Visual / Interfaz':'🎨','Datos y Sheets':'📊','Voz / Audio':'🎙️','Otro':'✨'};
+const COLOR = {'Nueva':'#0e6b8a','Guardada':'#3aa56a','En prueba':'#dba11b','Descartada':'#9aa7b4'};
+const RCOLOR = {'Bajo':'#3aa56a','Medio':'#dba11b','Alto':'#ef6a63'};
+
+const TILES = [
+  {k:'todos', n:'Todos', c:'#0f3b4f', t:'rgba(15,59,79,.10)', f:()=>true},
+  {k:'Nueva', n:'Por revisar', c:'#0e6b8a', t:'rgba(14,107,138,.12)', f:i=>i.estado==='Nueva',
+   h:'Por revisar', d:'Recién analizados. Léelos y decide: probar, guardar o descartar.', l:i=>i.resumen, vacio:'No tienes hallazgos pendientes de revisar.'},
+  {k:'En prueba', n:'En prueba', c:'#dba11b', t:'rgba(219,161,27,.16)', f:i=>i.estado==='En prueba',
+   h:'En prueba', d:'Lo que estás probando ahora. Anota el resultado en sus notas.', l:i=>i.notas || 'Sin notas todavía', vacio:'Nada en prueba todavía. Abre un hallazgo y cámbiale el estado a “En prueba”.'},
+  {k:'Guardada', n:'Guardadas', c:'#3aa56a', t:'rgba(58,165,106,.14)', f:i=>i.estado==='Guardada',
+   h:'Guardadas', d:'Ideas que quieres conservar para usar.', l:i=>i.idea_uso || i.resumen, vacio:'Aún no guardas ninguno. Cambia el estado de un hallazgo a “Guardada”.'},
+  {k:'top', n:'Top utilidad', c:'#7b61c9', t:'rgba(123,97,201,.13)', f:i=>i.utilidad>=4 && i.estado!=='Descartada',
+   h:'Top utilidad', d:'Los que más te sirven (4 o 5 puntos), sin contar descartados.', l:i=>i.resumen, vacio:'Ninguno tiene 4 o 5 puntos de utilidad todavía.'},
+  {k:'riesgo', n:'Riesgo alto', c:'#ef6a63', t:'rgba(239,106,99,.13)', f:i=>i.riesgo==='Alto' && i.estado!=='Descartada',
+   h:'Riesgo alto', d:'Revisa estos riesgos antes de instalar cualquiera de ellos.', l:i=>i.riesgos || i.resumen, vacio:'Ninguno marcado con riesgo alto.'},
+  {k:'Descartada', n:'Descartadas', c:'#9aa7b4', t:'rgba(154,167,180,.2)', hide:true, f:i=>i.estado==='Descartada',
+   h:'Descartadas', d:'Los que decidiste no usar.', l:i=>i.notas || i.resumen, vacio:'No has descartado ninguno.'}
+];
+const tileOf = k => TILES.find(t => t.k === k) || TILES[0];
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+};
+const safeUrl = u => /^https?:\/\//i.test(u || '') ? u : '';
+
+/* ---------- Fichas iniciales (las que analizamos juntos) ---------- */
+const SEED = [
+{id:'seed-whatsapp', nombre:`Agente de WhatsApp con IA (guía en 8 pasos)`, categoria:'Automatización', utilidad:3, riesgo:'Alto', estado:'Nueva', fuente:'Terceros', enlace:'',
+ resumen:`Receta de un reel para armar un agente de IA que atienda y agende citas por WhatsApp mientras duermes.`,
+ para_que_sirve:`Es una receta, no una herramienta lista. Un agente de IA recibe mensajes de clientes por WhatsApp, responde con la información de tu negocio y agenda citas. Se arma con la API de WhatsApp de Meta (la conexión oficial para empresas), un webhook (aviso automático que llega cuando entra un mensaje), un modelo de IA vía OpenRouter (una sola API para usar muchos modelos) y Cal.com para la agenda.\nRegla clave: solo puedes responder libremente dentro de las 24 horas siguientes al último mensaje del cliente. Fuera de ese plazo hay que usar plantillas aprobadas por Meta.`,
+ idea_uso:`Pensarlo como piloto para el servicio técnico: un agente que responda consultas básicas de clientes sobre productos y fichas técnicas, y que derive a una persona cuando no sepa. Antes de hablar con clientes reales habría que validarlo con la empresa.`,
+ riesgos:`Alto: habla con clientes reales a nombre de la empresa y una respuesta equivocada tiene costo. Necesita cuenta de empresa en Meta, un servidor propio y cuidar los datos de los clientes. Fuera de la ventana de 24 horas se necesitan plantillas aprobadas, y WhatsApp cobra por ciertos mensajes: no revisé las tarifas.`,
+ instalacion:`Define qué hace, qué resuelve y qué NUNCA puede hacer el agente. Hazlo antes de escribir código.
+Conecta WhatsApp: cuenta de Meta para empresas, un webhook y suscripción al evento "messages". Respeta la ventana de 24 horas.
+Elige el modelo con OpenRouter: una sola API y cambias de modelo en una línea.
+Dale memoria: historial por número de teléfono, solo los últimos ~20 mensajes y con un límite.
+Cárgale tu negocio: servicios, precios, horarios y preguntas frecuentes. Si no sabe, que responda "lo confirmo con el equipo".
+Dale herramientas: Cal.com para agendar. Que confirme antes de reservar y que las fechas las calcule tu código, no el modelo.
+Pruébalo hasta romperlo: fechas imposibles, mensajes simultáneos y "ignora tus instrucciones".
+Producción: servidor (VPS), HTTPS y validar la firma del webhook. La captura se corta aquí: pide la guía completa al autor del reel.`,
+ prompt:`Planifica, sin escribir código todavía, un agente de IA para atender y agendar citas por WhatsApp en mi negocio. Primero hazme preguntas, una por una: qué hace el negocio, quiénes son los clientes, qué debe resolver el agente, qué acciones puede tomar y qué NUNCA debe hacer. Después entrégame un plan por pasos que incluya la regla de las 24 horas de WhatsApp, la memoria de la conversación, las pruebas y la seguridad del webhook.`},
+
+{id:'seed-superpowers', nombre:`Superpowers (obra)`, categoria:'Agentes', utilidad:4, riesgo:'Medio', estado:'Nueva', fuente:'Captura', enlace:'https://github.com/obra/superpowers',
+ resumen:`Plugin que obliga a Claude Code a trabajar con método: primero conversar y planificar, después construir y revisar.`,
+ para_que_sirve:`Es un plugin (extensión) con skills (manuales de tareas) que cambian cómo trabaja Claude Code: en vez de lanzarse a escribir código, primero aclara la idea contigo, arma un plan por etapas y recién después lo ejecuta con revisiones. Según tu captura es gratis, con licencia MIT, y se instala con un comando.\nOjo: no pude abrir su README, así que esta descripción se basa en tu captura y en lo que sé del proyecto. Confírmala en el repositorio.`,
+ idea_uso:`Instalarlo solo en un proyecto de prueba para ver si mejora tus apps grandes, como la empresa multiagente. No lo instales junto con ECC al principio: así sabrás cuál provoca cada cambio.`,
+ riesgos:`Medio: es un plugin de terceros que modifica cómo se comporta Claude Code. Un proceso más largo (más preguntas y pasos) probablemente gasta más tokens (el consumo de la IA). El reel dice que tiene 200 mil estrellas en GitHub; no pude comprobar esa cifra.`,
+ instalacion:`Escribe esto dentro de Claude Code, como en tu captura:
+> /plugin install superpowers@claude-plugins-official
+La captura corta el nombre de la tienda de plugins (marketplace): confírmalo en el README antes de ejecutar.
+Alternativa: registrar la tienda propia del autor.
+> /plugin marketplace add obra/superpowers-marketplace
+Reinicia Claude Code o escribe /reload-plugins.
+Pruébalo con una tarea pequeña, por ejemplo "Quiero agregar un botón de exportar a mi app". Mira si te hace preguntas y arma un plan antes de escribir código.`,
+ prompt:`Quiero probar el plugin Superpowers (obra/superpowers) en este proyecto de prueba. Antes de que lo instale, explícame en simple qué cambia en tu forma de trabajar y qué costo en tokens podría tener. Los comandos que empiezan con / los escribo yo: dime cuál es el primero y espera a que te confirme. Después de instalarlo, haz una prueba con una tarea pequeña que yo te indique.`},
+
+{id:'seed-perplexity', nombre:`Perplexity (conector MCP)`, categoria:'Investigación web', utilidad:4, riesgo:'Bajo', estado:'Nueva', fuente:'README', enlace:'https://docs.perplexity.ai/docs/getting-started/integrations/claude-code',
+ resumen:`Conecta a Claude con el buscador de Perplexity para investigar en la web con respuestas citadas.`,
+ para_que_sirve:`Es un servidor MCP (un conector que le da a Claude acceso a otra herramienta) oficial de Perplexity. Trae cuatro herramientas: buscar en la web (search), responder preguntas con datos al día (ask), investigación profunda con citas (research) y razonamiento de varios pasos (reason).\nLa versión remota se conecta iniciando sesión con tu cuenta de Perplexity o con una clave de API; la versión local exige la clave PERPLEXITY_API_KEY.`,
+ idea_uso:`Sería el investigador de tu empresa automática: pedirle cada mañana 3 ideas de negocio en Chile con fuentes. También sirve para antecedentes técnicos de I+D, como normativa o nuevos aditivos, siempre verificando las citas.`,
+ riesgos:`Bajo: solo consulta información y no actúa en tus cuentas. Ojo con el costo: la documentación que leí no indica precios de la API, revísalos antes de usar una clave. Verifica siempre las citas, porque la IA puede resumir mal una fuente.`,
+ instalacion:`Opción remota (recomendada, sin instalar nada). Pega en tu terminal:
+> claude mcp add --transport http perplexity https://api.perplexity.ai/mcp
+Dentro de Claude Code escribe /mcp y sigue el aviso para iniciar sesión con tu cuenta de Perplexity.
+Opción con clave de API: agrega al comando el texto --header "Authorization: Bearer TU_CLAVE". Guarda la clave en un lugar seguro y nunca la pegues en un chat ni en una página pública.
+Verifica que quedó conectado:
+> claude mcp list`,
+ prompt:`Quiero conectar Perplexity a Claude Code con la opción remota e inicio de sesión (sin clave de API). Antes de ejecutar nada, muéstrame el comando y qué va a cambiar. Cuando confirme, ejecuta: claude mcp add --transport http perplexity https://api.perplexity.ai/mcp y luego dime que escriba /mcp para iniciar sesión (ese comando lo escribo yo). Para probar, usa perplexity_search y dame 3 ideas de negocio en Chile con sus fuentes.`},
+
+{id:'seed-composio', nombre:`Composio`, categoria:'Conectores', utilidad:3, riesgo:'Alto', estado:'Nueva', fuente:'README', enlace:'https://docs.composio.dev/docs/claude-code-plugin',
+ resumen:`Un solo plugin que permite a Claude actuar en más de 1.000 apps: Gmail, Slack, Notion, GitHub y más.`,
+ para_que_sirve:`Es un plugin de Claude Code que maneja por ti la autorización (OAuth: el permiso que das desde el navegador) y encuentra la herramienta correcta para cada tarea. Las apps se conectan la primera vez que las necesitas: Claude te entrega un enlace, lo apruebas en el navegador y listo. La documentación dice que no requiere claves de API ni archivos de configuración.`,
+ idea_uso:`Es una pieza clave de tu empresa automática: un bot podría leer un correo, anotar una fila en Sheets y avisar por Slack sin que armes cada conexión a mano. Pruébalo primero con una sola app y datos sin importancia.`,
+ riesgos:`Alto: le das permiso a Claude para leer y escribir en tus cuentas a través de un servicio de terceros. La documentación que leí no explica cómo guarda tus tokens (las llaves de acceso), qué permisos pide ni cuánto cuesta. Conecta primero solo una cuenta de prueba.`,
+ instalacion:`Dentro de Claude Code escribe estos dos comandos:
+> /plugin marketplace add ComposioHQ/composio-plugin-cc
+> /plugin install composio@composio
+Reinicia Claude Code o escribe /reload-plugins.
+La primera vez Claude instalará la herramienta de Composio y te pedirá iniciar sesión. Te entregará un enlace para aprobar cada app en el navegador.
+Si quieres conectar una app antes de usarla, escribe /composio-connect y el nombre de la app.
+Prueba con algo de solo lectura en una cuenta de prueba, no con tu correo principal.`,
+ prompt:`Quiero instalar el plugin de Composio en Claude Code. Antes de hacer nada, explícame en simple qué permisos pedirá y qué datos pasarán por Composio. Los comandos que empiezan con / los escribo yo: dime cuál es el primero y espera a que te confirme. Luego conecta solo GitHub con una cuenta de prueba y haz una acción de solo lectura, como listar mis repositorios. No conectes correo ni mensajería.`},
+
+{id:'seed-playwright', nombre:`Playwright MCP`, categoria:'Automatización', utilidad:4, riesgo:'Medio', estado:'Nueva', fuente:'Terceros', enlace:'https://github.com/microsoft/playwright-mcp',
+ resumen:`Le da a Claude un navegador para abrir páginas, hacer clic, llenar formularios y probar tus apps como un usuario.`,
+ para_que_sirve:`Es un servidor MCP (conector) mantenido por Microsoft sobre Playwright, una herramienta que controla navegadores (Chromium, Firefox y WebKit). Claude puede abrir direcciones web, hacer clic, escribir en formularios, bajar la página y sacar capturas. Lee las páginas con "snapshots de accesibilidad" (una descripción en texto de los elementos de la pantalla), sin depender solo de imágenes.\nFunciona en tu computador, sin clave de API, y necesita Node.js 18 o superior.`,
+ idea_uso:`Pedirle que abra tu app publicada en GitHub Pages (misGastos o esta biblioteca), pruebe cada botón como lo haría una persona y te reporte qué falla, con capturas. Así probarías tus herramientas sin hacerlo a mano.`,
+ riesgos:`Medio: Claude puede hacer clic y llenar formularios en sitios reales. No lo uses con un navegador donde hayas iniciado sesión en el banco, el correo u otras cuentas importantes. Prueba primero en tus propias páginas. Descarga los navegadores automáticamente la primera vez. La descripción viene de una guía de terceros, no del repositorio de Microsoft.`,
+ instalacion:`Requisito: tener Node.js 18 o superior en el computador donde corre Claude Code.
+Pega en tu terminal:
+> claude mcp add playwright npx @playwright/mcp@latest
+Verifica que quedó conectado:
+> claude mcp list
+La primera vez descargará los navegadores automáticamente y puede tardar un poco.
+Pruébalo con una página tuya, nunca con cuentas importantes.`,
+ prompt:`Quiero probar mi app web con Playwright MCP. Antes de instalar, dime qué va a cambiar. Cuando confirme, ejecuta: claude mcp add playwright npx @playwright/mcp@latest. Luego abre esta dirección: [PEGA AQUÍ LA URL DE TU APP], recorre cada botón y pantalla como un usuario y entrégame una lista de lo que falla o se ve mal, con capturas. No inicies sesión en ninguna cuenta ni escribas datos reales.`},
+
+{id:'seed-firecrawl', nombre:`Firecrawl`, categoria:'Investigación web', utilidad:4, riesgo:'Medio', estado:'Nueva', fuente:'README', enlace:'https://docs.firecrawl.dev/mcp-server',
+ resumen:`Permite que Claude busque y lea páginas web completas y las convierta en texto limpio para analizar.`,
+ para_que_sirve:`Firecrawl es un servicio que busca en internet y extrae (scrape) el contenido de páginas web. Su servidor MCP (conector) tiene tres formas de conectarse: sin cuenta ni clave, con inicio de sesión o con clave de API. Sin cuenta solo da tres herramientas básicas (Search, Scrape y Parse) y con un límite diario. Con sesión o clave se habilitan todas, según tu plan.\nEn tu captura de Claude aparece como conector con el botón "Conectar". Lo mencionan dos reels distintos.`,
+ idea_uso:`Pedirle que lea las fichas técnicas de proveedores de resinas o aditivos desde sus sitios web y arme una tabla comparativa. También sirve para que los bots de tu empresa automática investiguen mercado y competidores.`,
+ riesgos:`Medio: las direcciones y el contenido que consultas pasan por un servicio de terceros. Algunos sitios prohíben extraer su contenido en sus términos de uso. La documentación que leí no indica cuánto es el límite diario ni los precios de los planes.`,
+ instalacion:`Conexión con inicio de sesión (es la que muestra la documentación oficial):
+> claude mcp add --transport http firecrawl https://mcp.firecrawl.dev/v2/mcp-oauth
+Dentro de Claude Code escribe /mcp y sigue el aviso para iniciar sesión en Firecrawl.
+La documentación también describe el modo sin cuenta y el modo con clave de API (dirección https://mcp.firecrawl.dev/v2/mcp con la clave en el encabezado Authorization). Los pasos exactos de esos dos modos no estaban en la página que leí.
+En la app de Claude también puedes buscar Firecrawl entre los conectores y tocar "Conectar", como en tu captura.
+Puedes revisar y revocar las conexiones en firecrawl.dev/app/settings?tab=mcp`,
+ prompt:`Quiero conectar Firecrawl a Claude Code. Antes de ejecutar nada, dime qué comando vas a usar y qué cambia. Cuando confirme, ejecuta: claude mcp add --transport http firecrawl https://mcp.firecrawl.dev/v2/mcp-oauth y guíame para iniciar sesión con /mcp (ese comando lo escribo yo). Luego prueba leyendo la página de un proveedor de resinas que yo te indique y resume sus especificaciones técnicas en una tabla.`},
+
+{id:'seed-context7', nombre:`Context7`, categoria:'Conectores', utilidad:4, riesgo:'Bajo', estado:'Nueva', fuente:'Terceros', enlace:'https://github.com/upstash/context7',
+ resumen:`Le entrega a Claude la documentación actual de cada librería para que no invente ni use código viejo.`,
+ para_que_sirve:`Es un servidor MCP (conector que le da a Claude acceso a otra herramienta) de Upstash. Cuando le pides algo con una librería de programación, Context7 trae la documentación al día y ejemplos de esa versión, en vez de depender de lo que Claude aprendió en su entrenamiento, que puede estar desactualizado. Se activa escribiendo "use context7" al final de tu pedido.\nTiene dos herramientas: una encuentra la librería y otra trae su documentación (por defecto unos 5.000 tokens por consulta).`,
+ idea_uso:`Instalarlo una vez y usarlo cuando armes gráficos o interfaces: "arma un gráfico de barras con Chart.js, use context7". Así Claude usa la forma actual de la librería y comete menos errores.`,
+ riesgos:`Bajo: es de código abierto (licencia MIT) y solo lee documentación. La clave de API es opcional y sirve para tener más consultas por día. Cada consulta suma texto a la conversación, así que gasta algunos tokens. La descripción viene de un catálogo de terceros, no del repositorio.`,
+ instalacion:`Pega este comando en tu terminal, dentro de la carpeta de tu proyecto:
+> claude mcp add --transport http context7 https://mcp.context7.com/mcp
+Verifica que quedó conectado:
+> claude mcp list
+Úsalo agregando "use context7" al final de tu pedido, por ejemplo: "Haz un gráfico de barras con Chart.js. use context7".
+Opcional: si se acaban las consultas gratis, crea una cuenta en context7.com/dashboard y agrega tu clave con --header "CONTEXT7_API_KEY: TU_CLAVE".`,
+ prompt:`Quiero instalar el conector Context7 en este proyecto. Antes de ejecutar nada, muéstrame el comando exacto y qué configuración va a cambiar. Cuando yo confirme, ejecuta: claude mcp add --transport http context7 https://mcp.context7.com/mcp y luego claude mcp list para verificar. Después haz una prueba: pídele a Context7 la documentación actual de Chart.js y explícame en simple lo que encontró.`},
+
+{id:'seed-omniroute', nombre:`OmniRoute`, categoria:'Ahorro de tokens', utilidad:3, riesgo:'Alto', estado:'Nueva', fuente:'README', enlace:'https://github.com/diegosouzapw/OmniRoute',
+ resumen:`Central local que reparte tus pedidos entre muchos proveedores de IA y salta al siguiente si uno se agota.`,
+ para_que_sirve:`Es un gateway (puerta de enlace) que corre en tu computador. Herramientas como Claude Code apuntan a una sola dirección local y OmniRoute elige el proveedor: de suscripción, de API (conexión de pago por uso), baratos o gratuitos. No es una IA, es una central que deriva tus pedidos a IAs reales.`,
+ idea_uso:`Aplicar la idea sin la herramienta: usar un modelo barato (Haiku) para tareas simples y uno potente solo cuando haga falta. Eso lo puedes hacer directo con la API.`,
+ riesgos:`Alto: todos tus prompts y claves pasan por software de terceros. Algunos accesos "gratis" a modelos pueden violar los términos de uso de los proveedores y terminar en una cuenta bloqueada. Los modelos gratuitos son más débiles.`,
+ instalacion:`No lo instales todavía: primero entiende los riesgos, porque todos tus pedidos pasarían por él.
+Si decides probarlo, hazlo en un computador de pruebas:
+> npm install -g omniroute
+> omniroute
+El panel queda en http://localhost:20128, que es solo tu propio computador.
+Para Claude Code, en el archivo ~/.claude/settings.json se define ANTHROPIC_BASE_URL con http://localhost:20128 y ANTHROPIC_AUTH_TOKEN con la clave que te da OmniRoute.
+No conectes proveedores con tus claves reales hasta revisar el código y los términos de uso de cada uno.`,
+ prompt:`Explícame en simple cómo funciona OmniRoute y qué datos míos pasarían por él. No lo instales. Después propón cómo lograr el mismo ahorro de tokens sin esa herramienta: usar Haiku para tareas simples y un modelo más potente solo cuando haga falta, dentro de mi app de hallazgos.`},
+
+{id:'seed-ecc', nombre:`Everything Claude Code (ECC)`, categoria:'Agentes', utilidad:4, riesgo:'Medio', estado:'Guardada', fuente:'README', enlace:'https://github.com/affaan-m/ECC',
+ resumen:`Paquete que convierte a Claude Code en un equipo de programación con agentes especializados.`,
+ para_que_sirve:`Es un plugin (extensión que se instala en Claude Code) con decenas de agentes y skills (manuales de tareas): uno planifica, otro revisa código, otro hace pruebas, otro revisa seguridad. Es de código abierto (MIT) y está pensado para programadores profesionales.`,
+ idea_uso:`Usarlo como biblioteca de consulta: leer cómo están escritos sus agentes y copiar solo los que sirvan para tus proyectos, sin instalar todo.`,
+ riesgos:`Instalar todo carga muchas instrucciones y gasta tokens (el consumo de la IA). Sus hooks (acciones automáticas) ejecutan código en tu computador: instálalo solo desde el canal oficial. El README advierte no hacer además la instalación manual completa.`,
+ instalacion:`Opción segura, como biblioteca: descarga el repositorio y léelo sin instalar nada.
+> git clone https://github.com/affaan-m/ECC.git
+Opción instalar: escribe esto dentro de Claude Code.
+> /plugin marketplace add https://github.com/affaan-m/ECC
+> /plugin install ecc@ecc
+No hagas además la instalación manual completa: el README lo desaconseja.`,
+ prompt:`Quiero revisar el repositorio affaan-m/ECC como biblioteca de consulta, sin instalarlo. Clónalo en una carpeta aparte, lista sus agentes y skills por categoría con una frase cada uno y dime cuáles servirían para un ingeniero químico que arma apps web simples. No modifiques mi configuración de Claude Code.`}
+];
+
+function buildSeed(){
+  return SEED.map((s, i) => Object.assign({fecha: Date.now() - i * 60000, notas: ''}, s));
+}
+
+/* ---------- Estado ---------- */
+let cfg = store.get('curador_cfg', {url:'', clave:''});
+let connected = !!(cfg.url && cfg.clave);
+let items = connected ? store.get('curador_cache', []) : (store.get('curador_demo_v2', null) || buildSeed());
+const F = {tile:'todos', cat:'Todas', q:'', orden:'recientes'};
+let drawerOpen = false, imgs = [], busy = false, timer = null;
+
+function persist(){ store.set(connected ? 'curador_cache' : 'curador_demo_v2', items); }
+function normItem(r){ return Object.assign({}, r, {utilidad:Number(r.utilidad)||0, fecha:Number(r.fecha)||0, instalacion:r.instalacion||'', prompt:r.prompt||''}); }
+
+async function api(accion, extra){
+  const r = await fetch(cfg.url, {method:'POST', body:JSON.stringify(Object.assign({clave:cfg.clave, accion}, extra || {}))});
+  const j = await r.json();
+  if(!j.ok) throw new Error(j.error || 'Error desconocido');
+  return j;
+}
+
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.style.display = 'block';
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.style.display = 'none', 3000);
+}
+
+async function copyText(t){
+  try { await navigator.clipboard.writeText(t); return true; } catch(e){}
+  try {
+    const a = document.createElement('textarea'); a.value = t; a.style.cssText = 'position:fixed;opacity:0;top:0';
+    document.body.appendChild(a); a.select(); const ok = document.execCommand('copy'); a.remove(); return ok;
+  } catch(e){ return false; }
+}
+
+/* ---------- Render ---------- */
+function filtered(){
+  const T = tileOf(F.tile), q = norm(F.q).trim();
+  let l = items.filter(T.f).filter(i => F.cat === 'Todas' || i.categoria === F.cat);
+  if(q) l = l.filter(i => {
+    const hay = norm([i.nombre,i.resumen,i.categoria,i.para_que_sirve,i.idea_uso,i.riesgos,i.notas,i.estado,i.instalacion].join(' '));
+    return q.split(/\s+/).every(w => hay.includes(w));
+  });
+  if(F.orden === 'recientes') l.sort((a,b) => b.fecha - a.fecha);
+  else if(F.orden === 'utilidad') l.sort((a,b) => b.utilidad - a.utilidad || b.fecha - a.fecha);
+  else l.sort((a,b) => a.nombre.localeCompare(b.nombre, 'es'));
+  return l;
+}
+
+function renderHero(){
+  const n = e => items.filter(i => i.estado === e).length, tot = items.length;
+  $('#heroTitle').textContent = tot === 1 ? '1 hallazgo' : tot + ' hallazgos';
+  $('#heroSub').textContent = tot ? `${n('Nueva')} por revisar · ${n('En prueba')} en prueba · ${n('Guardada')} guardados` : 'Aún no hay nada guardado';
+  $('#flow').innerHTML = ESTADOS.map(e => `<span style="width:${tot ? n(e) * 100 / tot : 0}%;background:${COLOR[e]}"></span>`).join('');
+  $('#banner').innerHTML = connected ? '<b>CONECTADO</b> · tu hoja de Google Sheets' : '<b>DEMO</b> · fichas guardadas solo en este teléfono';
+}
+
+function renderTiles(){
+  $('#tiles').innerHTML = TILES.filter(t => !t.hide).map(t => {
+    const n = items.filter(t.f).length, p = items.length ? Math.round(n * 100 / items.length) : 0, on = F.tile === t.k && t.k !== 'todos';
+    return `<button class="tile ${on ? 'on' : ''}" data-tile="${esc(t.k)}" aria-pressed="${on}" style="--c:${t.c};--t:${t.t};--p:${p}%"><span>${esc(t.n)}</span><b>${n}</b><span class="bar"><u></u></span></button>`;
+  }).join('');
+}
+
+function renderDrawer(){
+  const T = tileOf(F.tile), open = drawerOpen && F.tile !== 'todos';
+  $('#drawer').classList.toggle('open', open);
+  if(!open) return;
+  const list = items.filter(T.f).sort((a,b) => b.utilidad - a.utilidad || b.fecha - a.fecha);
+  const shown = list.slice(0, 6);
+  const rows = shown.map(i => `<button class="mrow" data-open="${esc(i.id)}"><span class="em">${EMO[i.categoria] || '✨'}</span><span class="mt"><b>${esc(i.nombre)}</b><small>${esc(T.l(i))}</small></span><span class="go">›</span></button>`).join('');
+  $('#dbox').style.setProperty('--c', T.c);
+  $('#dbox').innerHTML = `<div class="dh"><div><h3>${esc(T.h)} · ${list.length}</h3><p>${esc(T.d)}</p></div><button class="hide" id="btnHide">Ocultar</button></div>` +
+    (list.length ? `<div class="mrows">${rows}</div>${list.length > shown.length ? `<p class="more">y ${list.length - shown.length} más en la cuadrícula de abajo ↓</p>` : ''}` : `<p class="none">${esc(T.vacio)}</p>`);
+}
+
+function renderTools(){
+  const used = CATS.filter(c => items.some(i => i.categoria === c));
+  $('#chipsCat').innerHTML = ['Todas'].concat(used).map(c => `<button class="chip ${F.cat === c ? 'on' : ''}" data-cat="${esc(c)}">${c === 'Todas' ? 'Todas' : (EMO[c] || '') + ' ' + esc(c)}</button>`).join('');
+  const nd = items.filter(i => i.estado === 'Descartada').length;
+  $('#btnDesc').textContent = F.tile === 'Descartada' ? 'Ocultar descartadas' : `Descartadas (${nd})`;
+  $('#btnDesc').hidden = !nd && F.tile !== 'Descartada';
+  $('#btnClear').hidden = !(F.tile !== 'todos' || F.cat !== 'Todas' || F.q);
+}
+
+function renderGrid(){
+  const l = filtered(), T = tileOf(F.tile);
+  $('#count').textContent = l.length === items.length ? `${l.length} hallazgos` : `${l.length} de ${items.length} hallazgos`;
+  if(!l.length){
+    $('#grid').innerHTML = `<div class="empty">${items.length ? 'Nada coincide con esos filtros.' : 'Aún no hay hallazgos. Toca “Analizar hallazgo” para agregar el primero.'}</div>`;
+    return;
+  }
+  $('#grid').innerHTML = l.map((i, k) => {
+    const u = Math.max(0, Math.min(5, i.utilidad));
+    return `<button class="card ${i.estado === 'Descartada' ? 'off' : ''}" style="--c:${COLOR[i.estado] || COLOR.Nueva};--i:${Math.min(k, 12)}" data-open="${esc(i.id)}">
+      <div class="ctop"><span class="em">${EMO[i.categoria] || '✨'}</span><span class="pill">${esc(i.estado)}</span></div>
+      <div class="cat">${esc(i.categoria)}</div>
+      <h3>${esc(i.nombre)}</h3>
+      <p class="res">${esc(i.resumen)}</p>
+      <div class="foot"><span class="dots" title="Utilidad ${u} de 5">${'●'.repeat(u)}${'○'.repeat(5 - u)}</span><span class="risk" style="--c:${RCOLOR[i.riesgo] || RCOLOR.Medio}"><i></i>Riesgo ${esc(i.riesgo)}</span></div>
+      ${i.instalacion ? '<span class="tag">🧰 Con instalación</span>' : ''}
+    </button>`;
+  }).join('');
+}
+
+function render(){ renderHero(); renderTiles(); renderDrawer(); renderTools(); renderGrid(); }
+
+function pickTile(k){
+  if(k === 'todos'){ F.tile = 'todos'; F.cat = 'Todas'; F.q = ''; $('#q').value = ''; drawerOpen = false; }
+  else if(F.tile === k){ F.tile = 'todos'; drawerOpen = false; }
+  else { F.tile = k; drawerOpen = true; }
+  render();
+}
+
+/* ---------- Detalle ---------- */
+let sel = {id:'', estado:'', util:0};
+
+function parseSteps(txt){
+  const steps = [];
+  String(txt || '').split('\n').map(s => s.trim()).filter(Boolean).forEach(l => {
+    if(l.startsWith('> ')){ if(!steps.length) steps.push({t:'', c:[]}); steps[steps.length - 1].c.push(l.slice(2).trim()); }
+    else steps.push({t:l.replace(/^\d+[.)]\s*/, ''), c:[]});
+  });
+  return steps;
+}
+
+function srcBox(f){
+  if(f === 'README') return ['ok', '✔ Basada en la documentación oficial (README o docs del proyecto)'];
+  if(f === 'Terceros') return ['mid', '◐ Basada en guías de terceros: confirma los datos en el sitio oficial'];
+  return ['warn', '⚠ Basada solo en la captura o en lo que escribiste: menos confiable'];
+}
+
+function openDetail(id){
+  const i = items.find(x => x.id === id); if(!i) return;
+  sel = {id:i.id, estado:i.estado, util:i.utilidad};
+  const url = safeUrl(i.enlace), sb = srcBox(i.fuente), u = Math.max(0, Math.min(5, i.utilidad));
+  const steps = parseSteps(i.instalacion);
+  const inst = steps.length ? `<div class="inst"><h4>🧰 Cómo instalarlo o ponerlo en marcha</h4>${steps.map((s, k) => `<div class="step"><div class="n">${k + 1}</div><div class="sb">${s.t ? `<p>${esc(s.t)}</p>` : ''}${s.c.map(c => `<div class="cmd"><code>${esc(c)}</code><button class="cp" data-copy="${esc(c)}">Copiar</button></div>`).join('')}</div></div>`).join('')}<p class="warnline">Revisa cada comando antes de ejecutarlo. Salen de la descripción del proyecto y no los he probado en tu computador.</p></div>` : '';
+  const pr = i.prompt ? `<div class="pbox"><h4>💬 Prompt para pegar en Claude Code</h4><pre>${esc(i.prompt)}</pre><button class="cp" data-copy="${esc(i.prompt)}">Copiar prompt</button></div>` : '';
+  $('#panelDetalle').innerHTML = `
+    <div class="ph"><div class="who"><span class="em">${EMO[i.categoria] || '✨'}</span><div><div class="cat">${esc(i.categoria)}</div><h3>${esc(i.nombre)}</h3></div></div><button class="x" data-close aria-label="Cerrar">✕</button></div>
+    <div class="badges"><span class="pill" style="--c:${COLOR[i.estado] || COLOR.Nueva}">${esc(i.estado)}</span><span class="risk" style="--c:${RCOLOR[i.riesgo] || RCOLOR.Medio}"><i></i>Riesgo ${esc(i.riesgo)}</span><span class="dots">${'●'.repeat(u)}${'○'.repeat(5 - u)}</span></div>
+    <div class="src ${sb[0]}">${sb[1]}</div>
+    <div class="sec"><h4>Qué es</h4><p>${esc(i.resumen)}</p></div>
+    <div class="sec"><h4>Para qué sirve</h4><p>${esc(i.para_que_sirve)}</p></div>
+    <div class="sec"><h4>Idea de uso</h4><p>${esc(i.idea_uso)}</p></div>
+    <div class="sec"><h4>Riesgos</h4><p>${esc(i.riesgos)}</p></div>
+    ${inst}${pr}
+    ${url ? `<a class="link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Abrir enlace ↗</a>` : ''}
+    <label class="lbl">Estado</label>
+    <div class="seg" id="segE">${ESTADOS.map(e => `<button data-e="${esc(e)}" style="--c:${COLOR[e]}" class="${e === sel.estado ? 'on' : ''}">${esc(e)}</button>`).join('')}</div>
+    <label class="lbl">Utilidad para ti (1 a 5)</label>
+    <div class="seg nums" id="segU">${[1,2,3,4,5].map(n => `<button data-u="${n}" class="${n === sel.util ? 'on' : ''}">${n}</button>`).join('')}</div>
+    <label class="lbl">Mis notas</label>
+    <textarea id="notas" placeholder="Ideas, dudas, resultado de la prueba…">${esc(i.notas)}</textarea>
+    <button class="btn" id="btnSaveItem">Guardar cambios</button>
+    <button class="btn ghost" id="btnDel">Eliminar</button>`;
+  $('#sheetDetalle').classList.add('open');
+  $('#panelDetalle').scrollTop = 0;
+}
+
+async function saveItem(){
+  const i = items.find(x => x.id === sel.id); if(!i) return;
+  const cambios = {estado:sel.estado, utilidad:sel.util, notas:$('#notas').value.trim()};
+  if(connected){
+    try { await api('actualizar', {id:i.id, cambios}); }
+    catch(e){ toast('No se pudo guardar: ' + e.message); return; }
+  }
+  Object.assign(i, cambios); persist(); render(); closeAll(); toast('Guardado');
+}
+
+async function delItem(){
+  if(!confirm('¿Eliminar este hallazgo? No se puede deshacer.')) return;
+  if(connected){
+    try { await api('eliminar', {id:sel.id}); }
+    catch(e){ toast('No se pudo eliminar: ' + e.message); return; }
+  }
+  items = items.filter(x => x.id !== sel.id); persist(); render(); closeAll(); toast('Eliminado');
+}
+
+/* ---------- Analizar ---------- */
+function reducir(file){
+  return new Promise((res, rej) => {
+    const img = new Image(), u = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, 1280 / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(u); res(c.toDataURL('image/jpeg', 0.82).split(',')[1]);
+    };
+    img.onerror = () => rej(new Error('No pude leer la imagen'));
+    img.src = u;
+  });
+}
+
+function renderThumbs(){
+  $('#thumbs').innerHTML = imgs.map((d, i) => `<div class="th"><img alt="Captura ${i + 1}" src="data:image/jpeg;base64,${d}"><button class="rm" data-rm="${i}" aria-label="Quitar captura">✕</button></div>`).join('');
+  $('#dropTxt').textContent = imgs.length ? '＋ Agregar otra captura' : '📷 Toca para elegir capturas';
+  $('#drop').style.display = imgs.length >= 3 ? 'none' : 'flex';
+}
+
+function setBusy(b, msg, err){
+  busy = b; $('#btnGo').disabled = b;
+  const s = $('#status'); s.textContent = msg || ''; s.classList.toggle('err', !!err);
+}
+
+async function analizar(){
+  if(busy) return;
+  if(!connected){ toast('Para analizar, primero conecta tu hoja en Ajustes (☰)'); return; }
+  const url = $('#inUrl').value.trim(), texto = $('#inTexto').value.trim();
+  if(!imgs.length && !url && !texto){ setBusy(false, 'Agrega una captura, un enlace o un nombre', true); return; }
+  const pasos = ['Leyendo las capturas…', 'Buscando el repositorio en GitHub…', 'Armando la ficha y el protocolo…'];
+  let n = 0; setBusy(true, pasos[0]);
+  timer = setInterval(() => { n = Math.min(n + 1, pasos.length - 1); $('#status').textContent = pasos[n]; }, 7000);
+  try {
+    const j = await api('analizar', {imagenes:imgs, url, texto, instalacion:$('#inInst').checked});
+    const it = normItem(j.item);
+    items.unshift(it); persist(); render();
+    closeAll(); resetAdd(); openDetail(it.id);
+  } catch(e){
+    setBusy(false, e.message, true);
+  } finally {
+    clearInterval(timer);
+  }
+}
+
+function resetAdd(){
+  imgs = []; $('#file').value = ''; $('#inUrl').value = ''; $('#inTexto').value = ''; $('#inInst').checked = true;
+  renderThumbs(); setBusy(false, '');
+}
+
+$('#file').addEventListener('change', async e => {
+  const files = Array.from(e.target.files).slice(0, 3 - imgs.length);
+  e.target.value = '';
+  for(const f of files){
+    try { imgs.push(await reducir(f)); } catch(err){ setBusy(false, err.message, true); }
+  }
+  renderThumbs();
+});
+
+/* ---------- Ajustes ---------- */
+async function saveCfg(){
+  const url = $('#cfgUrl').value.trim(), clave = $('#cfgClave').value.trim();
+  const s = $('#cfgStatus');
+  if(!safeUrl(url) || !clave){ s.textContent = 'Completa la dirección y la clave'; s.classList.add('err'); return; }
+  s.classList.remove('err'); s.textContent = 'Conectando…';
+  const prev = {cfg, connected};
+  cfg = {url, clave};
+  try {
+    let j = await api('listar');
+    if(!j.items.length && confirm('Tu hoja está vacía. ¿Cargar las ' + SEED.length + ' fichas iniciales (las que analizamos juntos)?')){
+      s.textContent = 'Cargando fichas…';
+      await api('importar', {items:buildSeed()});
+      j = await api('listar');
+    }
+    connected = true; store.set('curador_cfg', cfg);
+    items = j.items.map(normItem); persist(); render(); closeAll(); toast('Conectado a tu hoja');
+  } catch(e){
+    cfg = prev.cfg; connected = prev.connected;
+    s.classList.add('err'); s.textContent = 'No se pudo conectar: ' + e.message;
+  }
+}
+
+function goDemo(){
+  connected = false; cfg = {url:'', clave:''}; store.set('curador_cfg', cfg);
+  items = store.get('curador_demo_v2', null) || buildSeed(); render(); closeAll(); toast('Modo demo');
+}
+
+/* ---------- Navegación ---------- */
+function closeAll(){ document.querySelectorAll('.sheet').forEach(s => s.classList.remove('open')); }
+
+document.addEventListener('click', async e => {
+  const t = e.target;
+  if(t.closest('[data-close]') || t.classList.contains('sheet')){ if(!busy) closeAll(); return; }
+  const cp = t.closest('[data-copy]');
+  if(cp){ const ok = await copyText(cp.dataset.copy); toast(ok ? 'Copiado ✔' : 'No pude copiar: mantén presionado el texto'); return; }
+  const tile = t.closest('.tile'); if(tile){ pickTile(tile.dataset.tile); return; }
+  if(t.id === 'btnHide'){ drawerOpen = false; renderDrawer(); return; }
+  const op = t.closest('[data-open]'); if(op){ openDetail(op.dataset.open); return; }
+  const chip = t.closest('[data-cat]'); if(chip){ F.cat = F.cat === chip.dataset.cat ? 'Todas' : chip.dataset.cat; renderTools(); renderGrid(); return; }
+  const rm = t.closest('[data-rm]'); if(rm){ imgs.splice(Number(rm.dataset.rm), 1); renderThumbs(); return; }
+  const be = t.closest('#segE button'); if(be){ sel.estado = be.dataset.e; document.querySelectorAll('#segE button').forEach(b => b.classList.toggle('on', b === be)); return; }
+  const bu = t.closest('#segU button'); if(bu){ sel.util = Number(bu.dataset.u); document.querySelectorAll('#segU button').forEach(b => b.classList.toggle('on', b === bu)); return; }
+  if(t.id === 'btnSaveItem') saveItem();
+  else if(t.id === 'btnDel') delItem();
+});
+document.addEventListener('keydown', e => { if(e.key === 'Escape' && !busy) closeAll(); });
+$('#q').addEventListener('input', e => { F.q = e.target.value; renderTools(); renderGrid(); });
+$('#selOrden').addEventListener('change', e => { F.orden = e.target.value; renderGrid(); });
+$('#btnClear').addEventListener('click', () => pickTile('todos'));
+$('#btnDesc').addEventListener('click', () => pickTile('Descartada'));
+$('#btnAdd').addEventListener('click', () => { setBusy(false, ''); $('#sheetAdd').classList.add('open'); });
+$('#btnGo').addEventListener('click', analizar);
+$('#btnMenu').addEventListener('click', () => { $('#cfgUrl').value = cfg.url; $('#cfgClave').value = cfg.clave; $('#cfgStatus').textContent = ''; $('#sheetCfg').classList.add('open'); });
+$('#btnSaveCfg').addEventListener('click', saveCfg);
+$('#btnDemo').addEventListener('click', goDemo);
+
+/* ---------- Inicio ---------- */
+renderThumbs();
+render();
+if(connected){
+  api('listar').then(j => { items = j.items.map(normItem); persist(); render(); })
+    .catch(e => toast('Sin conexión con la hoja: ' + e.message));
+}
+</script>
+</body>
+</html>
